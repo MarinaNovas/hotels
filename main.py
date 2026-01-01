@@ -1,24 +1,23 @@
-from fastapi import FastAPI
-from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi import FastAPI, Query
 import uvicorn
 
 app = FastAPI()
 
+hotels = [
+    {"id": 1, "title": "Sochi"},
+    {"id": 2, "title": "Dubai"}
+]
+
+
 @app.get("/")
 def func():
-    return "Hello World!!!"
+    return "Hello World!!! JHJHJHJ"
 
 
-@app.get("/docs", include_in_schema=False)
-async def custom_swagger_ui_html():
-    return get_swagger_ui_html(
-        openapi_url=app.openapi_url,
-        title=app.title + " - Swagger UI",
-        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
-        swagger_js_url="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js",
-        swagger_css_url="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css",
-    )
-
-
+@app.get("/hotels")
+def func(id: int | None = Query(None, description="Айдишник"), title: str | None = Query(None, description="Название отеля")):
+    return [hotel for hotel in hotels if hotel["title"] == title and hotel["id"] == id]
+'''
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)
+    '''
