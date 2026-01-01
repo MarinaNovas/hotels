@@ -16,8 +16,15 @@ def func():
 
 @app.get("/hotels")
 def func(id: int | None = Query(None, description="Айдишник"), title: str | None = Query(None, description="Название отеля")):
-    return [hotel for hotel in hotels if hotel["title"] == title and hotel["id"] == id]
-'''
+    hotels_ = []
+    for hotel in hotels:
+        if id and hotel["id"] != id:
+            continue
+        if title and hotel["title"] != title:
+            continue
+        hotels_.append(hotel)
+    #return [hotel for hotel in hotels if hotel["title"] == title and hotel["id"] == id]
+    return hotels_
+
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)
-    '''
