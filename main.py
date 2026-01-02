@@ -1,23 +1,20 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Body
 import uvicorn
 
 app = FastAPI()
 hotels = [
-    {"id": 1, "title": "Sochi"},
-    {"id": 2, "title": "Dubai"},
-    {"id": 3, "title": "Paris"},
-    {"id": 4, "title": "Rome"},
-    {"id": 5, "title": "Barcelona"},
-    {"id": 6, "title": "Istanbul"},
-    {"id": 7, "title": "New York"},
-    {"id": 8, "title": "Tokyo"},
-    {"id": 9, "title": "Bangkok"},
-    {"id": 10, "title": "Bali"},
-    {"id": 11, "title": "Prague"},
-    {"id": 12, "title": "Vienna"},
-    {"id": 13, "title": "Berlin"},
-    {"id": 14, "title": "Amsterdam"},
-    {"id": 15, "title": "Lisbon"},
+    {"id": 1, "title": "Sochi", "name": "Marina"},
+    {"id": 2, "title": "Dubai", "name": "Palace Downtown"},
+    {"id": 3, "title": "Paris", "name": "Le Meurice"},
+    {"id": 4, "title": "Rome", "name": "Hotel Eden"},
+    {"id": 5, "title": "Barcelona", "name": "W Barcelona"},
+    {"id": 6, "title": "Istanbul", "name": "Ciragan Palace Kempinski"},
+    {"id": 7, "title": "New York", "name": "The Plaza"},
+    {"id": 8, "title": "Tokyo", "name": "Park Hyatt Tokyo"},
+    {"id": 9, "title": "Bangkok", "name": "Mandarin Oriental"},
+    {"id": 10, "title": "Bali", "name": "Four Seasons Resort"},
+    {"id": 11, "title": "Prague", "name": "Hotel Kings Court"},
+    {"id": 12, "title": "Vienna", "name": "Hotel Sacher"},
 ]
 
 @app.get("/")
@@ -33,7 +30,6 @@ def get_hotels(id:int |None = Query(None, description="Айдишник"), title
         if title and hotel["title"] != title:
             continue
         hotels_sort.append(hotel)
-    # return [hotel for hotel in hotels if hotel["title"] == title and hotel["id"] == id]
     return hotels_sort
 
 @app.delete("/hotels/{hotel_id}")
@@ -42,5 +38,30 @@ def delete_hotel(id: int):
     hotels = [hotel for hotel in hotels if hotel["id"] != id]
     return {"SUCCESS": "OK"}
 
+@app.post("/hotels")
+def create_hotel(title: str = Body(embed=True)):
+    hotels.append({"id": hotels[-1]["id"]+1, "title": title})
+    return {"SUCCESS": "OK"}
+
+@app.put("/hotels")
+def put_hotel(id: int = Body(embed=True), title: str = Body(embed=True), name: str = Body(embed=True)):
+    hotel = next((hotel for hotel in hotels if hotel["id"] == id), None)
+    if hotel:
+        hotel["title"] = title
+        hotel["name"] = name
+        return {"SUCCESS": "OK"}
+    return {"ERROR": "NOT FOUNT"}
+
+@app.patch("/hotels")
+def patch_hotel(id: int = Body(embed=True), title: str | None = Body(None, embed=True), name: str | None = Body(None, embed=True)):
+    hotel = next((hotel for hotel in hotels if hotel["id"] == id), None)
+    if hotel:
+        if title:
+            hotel["title"] = title
+        if name:
+            hotel["name"] = name
+        return {"SUCCESS": "OK"}
+    return {"ERROR": "NOT FOUNT"}
+
 if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
