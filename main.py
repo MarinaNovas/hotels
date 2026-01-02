@@ -43,8 +43,8 @@ def create_hotel(title: str = Body(embed=True)):
     hotels.append({"id": hotels[-1]["id"]+1, "title": title})
     return {"SUCCESS": "OK"}
 
-@app.put("/hotels")
-def put_hotel(id: int = Body(embed=True), title: str = Body(embed=True), name: str = Body(embed=True)):
+@app.put("/hotels/{hotel_id}")
+def put_hotel(id: int, title: str = Body(embed=True), name: str = Body(embed=True)):
     hotel = next((hotel for hotel in hotels if hotel["id"] == id), None)
     if hotel:
         hotel["title"] = title
@@ -52,8 +52,8 @@ def put_hotel(id: int = Body(embed=True), title: str = Body(embed=True), name: s
         return {"SUCCESS": "OK"}
     return {"ERROR": "NOT FOUNT"}
 
-@app.patch("/hotels")
-def patch_hotel(id: int = Body(embed=True), title: str | None = Body(None, embed=True), name: str | None = Body(None, embed=True)):
+@app.patch("/hotels/{hotel_id}")
+def patch_hotel(id: int , title: str | None = Body(None, embed=True), name: str | None = Body(None, embed=True)):
     hotel = next((hotel for hotel in hotels if hotel["id"] == id), None)
     if hotel:
         if title:
