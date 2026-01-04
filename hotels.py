@@ -1,5 +1,6 @@
-from fastapi import Query, Body, APIRouter
-from pydantic import BaseModel
+from fastapi import Query, APIRouter
+
+from schemas.hotels import Hotel, HotelPATCH
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
@@ -17,10 +18,6 @@ hotels = [
     {"id": 11, "title": "Prague", "name": "Hotel Kings Court"},
     {"id": 12, "title": "Vienna", "name": "Hotel Sacher"},
 ]
-
-class Hotel(BaseModel):
-    title: str
-    name: str
 
 @router.get("")
 def get_hotels(id: int | None = Query(None, description="Айдишник"),
@@ -49,25 +46,25 @@ def create_hotel(data: Hotel):
 
 
 @router.put("/{hotel_id}")
-def edit_hotel(id: int, title: str = Body(embed=True), name: str = Body(embed=True)):
+def edit_hotel(id: int, data: Hotel):
     global hotels
     hotel = next((hotel for hotel in hotels if hotel["id"] == id), None)
     if hotel:
-        hotel["title"] = title
-        hotel["name"] = name
+        hotel["title"] = data.title
+        hotel["name"] = data.name
         return {"SUCCESS": "OK"}
     return {"ERROR": "NOT FOUNT"}
 
 
 @router.patch("/{hotel_id}", summary="Частичное обновление отеля", description="Тут мы частично обновляем ...")
-def patch_hotel(id: int, title: str | None = Body(None, embed=True), name: str | None = Body(None, embed=True)):
+def patch_hotel(id: int, data: HotelPATCH):
     global hotels
     hotel = next((hotel for hotel in hotels if hotel["id"] == id), None)
     if hotel:
-        if title:
-            hotel["title"] = title
-        if name:
-            hotel["name"] = name
+        if data.title:
+            hotel["title"] = data.title
+        if data.name:
+            hotel["name"] = data.name
         return {"SUCCESS": "OK"}
     return {"ERROR": "NOT FOUNT"}
 
