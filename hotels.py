@@ -24,8 +24,8 @@ hotels = [
 def get_hotels(
 	id: int | None = Query(None, description="Айдишник"),
 	title: str | None = Query(None, description="Наименование"),
-	page: int  = Query(1, ge=1, description="Номер страницы (>=1)"),
-	per_page: int = Query(3, ge=1, le=12, description="Элементов на странице")
+	page: int | None = Query(None, gt=1, description="Номер страницы (>=1)"),
+	per_page: int | None = Query(None, gt=1, lt=12, description="Элементов на странице"),
 ):
 	hotels_sort = []
 	for hotel in hotels:
@@ -34,9 +34,11 @@ def get_hotels(
 		if title and hotel["title"] != title:
 			continue
 		hotels_sort.append(hotel)
-	start = (page - 1) * per_page
-	end = start + per_page
-	return hotels_sort[start:end]
+	if page and per_page:
+		start = (page - 1) * per_page
+		end = start + per_page
+		return hotels_sort[start:end]
+	return hotels_sort
 
 
 @router.delete("/{hotel_id}")
