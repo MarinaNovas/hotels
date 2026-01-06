@@ -1,4 +1,5 @@
-from hotels import router as router_hotels
+from src.api.hotels import router as router_hotels
+from src.database import *
 
 from fastapi import FastAPI
 import uvicorn
