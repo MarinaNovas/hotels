@@ -11,7 +11,9 @@ exclude = [
   ".pytest_cache",
   "dist",
   "build",
-  "migrations",   # миграции
+  "alembic.ini",
+  "src/migrations/env.py",   # миграции
+  "src/migrations/script.py.mako",   # миграции
 ]
 
 [tool.ruff.lint]
