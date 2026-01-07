@@ -5,14 +5,17 @@ from src.config import settings
 
 
 engine = create_async_engine(settings.DB_URL)
-'''
+"""
 async def func():
 	async with engine.begin() as conn:
 		res = await conn.execute(text("SELECT version()"))
 		print(res.fetchone())
-'''
+"""
 async_session_maker = async_sessionmaker(bind=engine, expire_on_commit=False)
-class Base(DeclarativeBase):
-	pass
 
-#asyncio.run(func())
+
+class Base(DeclarativeBase):
+    pass
+
+
+# asyncio.run(func())
