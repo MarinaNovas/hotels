@@ -13,9 +13,9 @@ hotels = [
 	{"id": 5, "title": "Barcelona", "name": "W Barcelona"},
 	{"id": 6, "title": "Istanbul", "name": "Ciragan Palace Kempinski"},
 	{"id": 7, "title": "New York", "name": "The Plaza"},
-	{"id": 8, "title": "Tokyo", "name": "Park Hyatt Tokyo"},
-	{"id": 9, "title": "Bangkok", "name": "Mandarin Oriental"},
-	{"id": 10, "title": "Bali", "name": "Four Seasons Resort"},
+	{"id": 8, "title": "Tokyook", "name": "Mandarin Oriental"},
+	{"id": 10, "title": "Bali", "name": "Park Hyatt Tokyo"},
+	{"id": 9, "title": "Bangk", "name": "Four Seasons Resort"},
 	{"id": 11, "title": "Prague", "name": "Hotel Kings Court"},
 	{"id": 12, "title": "Vienna", "name": "Hotel Sacher"},
 ]
