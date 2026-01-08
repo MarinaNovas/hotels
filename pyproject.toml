@@ -12,8 +12,7 @@ exclude = [
   "dist",
   "build",
   "alembic.ini",
-  "src/migrations/env.py",   # миграции
-  "src/migrations/script.py.mako",   # миграции
+  "src/migrations",   # миграции
 ]
 
 [tool.ruff.lint]
