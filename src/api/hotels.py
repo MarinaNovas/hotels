@@ -1,6 +1,6 @@
 from fastapi import Query, APIRouter, Body
 
-from sqlalchemy import insert
+from sqlalchemy import insert, select
 
 from src.api.dependencies import PaginationDep
 from src.database import async_session_maker, engine
@@ -9,39 +9,26 @@ from src.schemas.hotels import Hotel, HotelPATCH
 
 router = APIRouter(prefix='/hotels', tags=['Отели'])
 
-hotels = [
-    {'id': 1, 'title': 'Sochi', 'name': 'Marina'},
-    {'id': 2, 'title': 'Dubai', 'name': 'Palace Downtown'},
-    {'id': 3, 'title': 'Paris', 'name': 'Le Meurice'},
-    {'id': 4, 'title': 'Rome', 'name': 'Hotel Eden'},
-    {'id': 5, 'title': 'Barcelona', 'name': 'W Barcelona'},
-    {'id': 6, 'title': 'Istanbul', 'name': 'Ciragan Palace Kempinski'},
-    {'id': 7, 'title': 'New York', 'name': 'The Plaza'},
-    {'id': 8, 'title': 'Tokyook', 'name': 'Mandarin Oriental'},
-    {'id': 10, 'title': 'Bali', 'name': 'Park Hyatt Tokyo'},
-    {'id': 9, 'title': 'Bangk', 'name': 'Four Seasons Resort'},
-    {'id': 11, 'title': 'Prague', 'name': 'Hotel Kings Court'},
-    {'id': 12, 'title': 'Vienna', 'name': 'Hotel Sacher'},
-]
-
 
 @router.get('')
-def get_hotels(
+async def get_hotels(
     pagination: PaginationDep,
     id: int | None = Query(None, description='Айдишник'),
     title: str | None = Query(None, description='Наименование'),
 ):
-    hotels_sort = []
-    for hotel in hotels:
-        if id and hotel['id'] != id:
-            continue
-        if title and hotel['title'] != title:
-            continue
-        hotels_sort.append(hotel)
 
-    start = (pagination.page - 1) * pagination.per_page
-    end = start + pagination.per_page
-    return hotels_sort[start:end]
+    #start = (pagination.page - 1) * pagination.per_page
+    #end = start + pagination.per_page
+    async with async_session_maker() as session:
+        query = select(HotelsOrm)
+        print(query.compile(engine, compile_kwargs={"literal_binds": True}))
+        result = await session.execute(query)
+        #result.all() - так приходит лист из кортежей
+        #result.scalar().all() - эти команды достанут из каждого кортежа превый элемент
+        hotels_result = result.scalars().all()
+        #print(type(hotels_result), hotels_result)
+        #FastApi сам конвертируют данные к json
+        return hotels_result
 
 
 @router.delete('/{hotel_id}')
