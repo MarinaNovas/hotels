@@ -16,18 +16,21 @@ async def get_hotels(
     id: int | None = Query(None, description='Айдишник'),
     title: str | None = Query(None, description='Наименование'),
 ):
-
-    #start = (pagination.page - 1) * pagination.per_page
-    #end = start + pagination.per_page
     async with async_session_maker() as session:
         query = select(HotelsOrm)
-        print(query.compile(engine, compile_kwargs={"literal_binds": True}))
+        if id:
+            query = query.filter_by(id=id)
+        if title:
+            query = query.filter_by(title=title)
+        query = query.limit(pagination.per_page).offset((pagination.page - 1) * pagination.per_page)
+
+        print(query.compile(engine, compile_kwargs={'literal_binds': True}))
         result = await session.execute(query)
-        #result.all() - так приходит лист из кортежей
-        #result.scalar().all() - эти команды достанут из каждого кортежа превый элемент
+        # result.all() - так приходит лист из кортежей
+        # result.scalar().all() - эти команды достанут из каждого кортежа превый элемент
         hotels_result = result.scalars().all()
-        #print(type(hotels_result), hotels_result)
-        #FastApi сам конвертируют данные к json
+        # print(type(hotels_result), hotels_result)
+        # FastApi сам конвертируют данные к json
         return hotels_result
 
 
@@ -42,7 +45,10 @@ def delete_hotel(id: int):
 async def create_hotel(
     data: Hotel = Body(
         openapi_examples={
-            '1': {'summary': 'Сочи', 'value': {'title': 'Чайка', 'location': 'г. Сочи, ул. Морская 3'}},
+            '1': {
+                'summary': 'Сочи',
+                'value': {'title': 'Чайка', 'location': 'г. Сочи, ул. Морская 3'},
+            },
             '2': {
                 'summary': 'Дубай',
                 'value': {
@@ -53,10 +59,10 @@ async def create_hotel(
         }
     ),
 ):
-    #тут создаем объект сессии
+    # тут создаем объект сессии
     async with async_session_maker() as session:
         add_hotel_stmt = insert(HotelsOrm).values(**data.model_dump())
-        print(add_hotel_stmt.compile(engine, compile_kwargs={"literal_binds": True}))
+        print(add_hotel_stmt.compile(engine, compile_kwargs={'literal_binds': True}))
         await session.execute(add_hotel_stmt)
         await session.commit()
     return {'SUCCESS': 'OK'}
