@@ -2,6 +2,7 @@ from fastapi import Query, APIRouter, Body
 
 from sqlalchemy import insert, select, func
 
+from repositories.hotels import HotelsRepository
 from src.api.dependencies import PaginationDep
 from src.database import async_session_maker, engine
 from src.models.hotels import HotelsOrm
@@ -17,22 +18,23 @@ async def get_hotels(
     location: str | None = Query(None, description='Адрес'),
 ):
     async with async_session_maker() as session:
-        query = select(HotelsOrm)
-        if title:
-            query = query.filter(func.lower(HotelsOrm.title).contains(title.strip().lower()))
-        if location:
-            query = query.filter(func.lower(HotelsOrm.location).contains(location.strip().lower()))
+        return await HotelsRepository(session).get_all()
 
-        query = query.limit(pagination.per_page).offset((pagination.page - 1) * pagination.per_page)
-
-        print(query.compile(engine, compile_kwargs={'literal_binds': True}))
-        result = await session.execute(query)
-        # result.all() - так приходит лист из кортежей
-        # result.scalar().all() - эти команды достанут из каждого кортежа превый элемент
-        hotels_result = result.scalars().all()
-        # print(type(hotels_result), hotels_result)
-        # FastApi сам конвертируют данные к json
-        return hotels_result
+        # query = select(HotelsOrm)
+        # if title:
+        #     query = query.filter(func.lower(HotelsOrm.title).contains(title.strip().lower()))
+        # if location:
+        #     query = query.filter(func.lower(HotelsOrm.location).contains(location.strip().lower()))
+        #
+        # query = query.limit(pagination.per_page).offset((pagination.page - 1) * pagination.per_page)
+        #
+        # print(query.compile(engine, compile_kwargs={'literal_binds': True}))
+        # result = await session.execute(query)
+        # # result.all() - так приходит лист из кортежей
+        # # result.scalar().all() - эти команды достанут из каждого кортежа превый элемент
+        # hotels_result = result.scalars().all()
+        # # print(type(hotels_result), hotels_result)
+        # # FastApi сам конвертируют данные к json
 
 
 @router.delete('/{hotel_id}')
