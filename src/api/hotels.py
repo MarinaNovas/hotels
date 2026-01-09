@@ -18,7 +18,12 @@ async def get_hotels(
     location: str | None = Query(None, description='Адрес'),
 ):
     async with async_session_maker() as session:
-        return await HotelsRepository(session).get_all()
+        return await HotelsRepository(session).get_all(
+            limit=pagination.per_page,
+            offset=(pagination.page - 1) * pagination.per_page,
+            title=title,
+            location=location,
+        )
 
         # query = select(HotelsOrm)
         # if title:
