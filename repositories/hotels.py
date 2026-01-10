@@ -1,8 +1,9 @@
-from sqlalchemy import select, func, insert
+from sqlalchemy import select, func
 
 from repositories.base import BaseRepository
 from src.database import engine
 from src.models.hotels import HotelsOrm
+
 
 class HotelsRepository(BaseRepository):
     model = HotelsOrm

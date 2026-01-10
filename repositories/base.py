@@ -1,4 +1,4 @@
-from sqlalchemy import select, insert
+from sqlalchemy import select, insert, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
 
@@ -26,3 +26,11 @@ class BaseRepository:
         # print(add_hotel_stmt.compile(engine, compile_kwargs = {'literal_binds': True}))
         result = await self.session.execute(add_stmt)
         return result.scalars().one()
+
+    async def edit(self, data: BaseModel, **filter_by) -> None:
+        stmt = update(self.model).filter_by(**filter_by).values(**data.model_dump())
+        await self.session.execute(stmt)
+
+    async def delete(self, **filter_by) -> None:
+        stmt = delete(self.model).filter_by(**filter_by)
+        await self.session.execute(stmt)
