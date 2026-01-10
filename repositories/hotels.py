@@ -3,7 +3,7 @@ from sqlalchemy import select, func, insert
 from repositories.base import BaseRepository
 from src.database import engine
 from src.models.hotels import HotelsOrm
-
+from src.schemas.hotels import Hotel
 
 class HotelsRepository(BaseRepository):
     model = HotelsOrm
