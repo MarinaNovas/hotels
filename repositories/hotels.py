@@ -1,4 +1,4 @@
-from sqlalchemy import select, func
+from sqlalchemy import select, func, insert
 
 from repositories.base import BaseRepository
 from src.database import engine
