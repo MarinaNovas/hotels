@@ -83,16 +83,11 @@ async def edit_hotel(hotel_id: int, data: Hotel):
 @router.patch(
     '/{hotel_id}', summary='Частичное обновление отеля', description='Тут мы частично обновляем ...'
 )
-def patch_hotel(id: int, data: HotelPATCH):
-    global hotels
-    hotel = next((hotel for hotel in hotels if hotel['id'] == id), None)
-    if hotel:
-        if data.title:
-            hotel['title'] = data.title
-        if data.name:
-            hotel['name'] = data.name
-        return {'SUCCESS': 'OK'}
-    return {'ERROR': 'NOT FOUNT'}
+async def patch_hotel(hotel_id: int, data: HotelPATCH):
+    async with async_session_maker() as session:
+        await HotelsRepository(session).edit(data, exclude_unset=True, id=hotel_id)
+        await session.commit()
+    return {'SUCCESS': 'OK'}
 
 
 """
