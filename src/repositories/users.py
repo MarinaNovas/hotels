@@ -5,6 +5,7 @@ from src.repositories.base import BaseRepository
 from src.models.users import UsersOrm
 from src.schemas.users import User, UserWithHashedPas
 
+
 class UsersRepository(BaseRepository):
     model = UsersOrm
     schema = User
@@ -13,4 +14,4 @@ class UsersRepository(BaseRepository):
         query = select(self.model).filter_by(email=email)
         result = await self.session.execute(query)
         model = result.scalars().one()
-        return UserWithHashedPas.model_validate(model, from_attributes = True)
+        return UserWithHashedPas.model_validate(model, from_attributes=True)

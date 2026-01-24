@@ -17,5 +17,6 @@ class User(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
 class UserWithHashedPas(User):
     hashed_password: str
