@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta, timezone
 from http.client import HTTPException
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 import jwt
+
 
 from src.repositories.users import UsersRepository
 from src.database import async_session_maker
@@ -27,6 +28,9 @@ def create_access_token(data: dict):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
 @router.post('/register')
 async def register_user(data: UserRequestAdd):
     hashed_password = pwd_context.hash(data.password)
@@ -37,11 +41,13 @@ async def register_user(data: UserRequestAdd):
         return {'SUCCESS': 'OK'}
 
 @router.post('/login')
-async def login_user(data: UserRequestAdd):
+async def login_user(data: UserRequestAdd, response: Response):
     async with async_session_maker() as session:
-        user = await  UsersRepository(session).get_one_or_none(email=data.email)
+        user = await  UsersRepository(session).get_user_with_hashed_password(email=data.email)
         if not user:
             raise HTTPException(status_code = 401, detail = "Пользователь с таким email не зарегестрирован")
-        token = create_access_token({"user_id": user.id})
-        return {"access_token": token}
-
+        if not verify_password(data.password, user.hashed_password):
+            raise HTTPException(status_code = 401, detail = "Пароль неверный")
+        access_token = create_access_token({"user_id": user.id})
+        response.set_cookie("access_token", access_token)
+        return {"access_token": access_token}
