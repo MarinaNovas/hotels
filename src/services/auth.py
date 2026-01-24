@@ -20,6 +20,9 @@ class AuthService:
         )
         return encoded_jwt
 
+    def decode_token(self, token: str) -> dict:
+        return jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=settings.JWT_ALGORITHM)
+
     def verify_password(self, plain_password, hashed_password):
         return self.pwd_context.verify(plain_password, hashed_password)
 
