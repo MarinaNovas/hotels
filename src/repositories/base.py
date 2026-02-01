@@ -20,7 +20,7 @@ class BaseRepository:
         ]
 
     async def get_all(self, *args, **kwargs):
-        return self.get_filtered()
+        return await self.get_filtered()
 
     async def get_one_or_none(self, **filter_by):
         query = select(self.model).filter_by(**filter_by)
