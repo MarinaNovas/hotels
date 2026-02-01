@@ -20,31 +20,34 @@ async def get_hotels(
         location=location,
     )
 
-        # query = select(HotelsOrm)
-        # if title:
-        #     query = query.filter(func.lower(HotelsOrm.title).contains(title.strip().lower()))
-        # if location:
-        #     query = query.filter(func.lower(HotelsOrm.location).contains(location.strip().lower()))
-        #
-        # query = query.limit(pagination.per_page).offset((pagination.page - 1) * pagination.per_page)
-        #
-        # print(query.compile(engine, compile_kwargs={'literal_binds': True}))
-        # result = await session.execute(query)
-        # # result.all() - так приходит лист из кортежей
-        # # result.scalar().all() - эти команды достанут из каждого кортежа превый элемент
-        # hotels_result = result.scalars().all()
-        # # print(type(hotels_result), hotels_result)
-        # # FastApi сам конвертируют данные к json
+    # query = select(HotelsOrm)
+    # if title:
+    #     query = query.filter(func.lower(HotelsOrm.title).contains(title.strip().lower()))
+    # if location:
+    #     query = query.filter(func.lower(HotelsOrm.location).contains(location.strip().lower()))
+    #
+    # query = query.limit(pagination.per_page).offset((pagination.page - 1) * pagination.per_page)
+    #
+    # print(query.compile(engine, compile_kwargs={'literal_binds': True}))
+    # result = await session.execute(query)
+    # # result.all() - так приходит лист из кортежей
+    # # result.scalar().all() - эти команды достанут из каждого кортежа превый элемент
+    # hotels_result = result.scalars().all()
+    # # print(type(hotels_result), hotels_result)
+    # # FastApi сам конвертируют данные к json
 
 
 @router.get('/{hotel_id}')
-async def get_hotel( db: DBDep, hotel_id: int,):
-        result = await db.hotels.get_one_or_none(id=hotel_id)
-        return result
+async def get_hotel(
+    db: DBDep,
+    hotel_id: int,
+):
+    result = await db.hotels.get_one_or_none(id=hotel_id)
+    return result
 
 
 @router.delete('/{hotel_id}')
-async def delete_hotel( db: DBDep, hotel_id: int):
+async def delete_hotel(db: DBDep, hotel_id: int):
     await db.hotels.delete(id=hotel_id)
     await db.commit()
     return {'SUCCESS': 'OK'}

@@ -7,6 +7,7 @@ from src.database import async_session_maker
 from src.services.auth import AuthService
 from src.utils.db_manager import DBManager
 
+
 class PaginationParams(BaseModel):
     page: Annotated[int, Query(1, ge=1, description='Номер страницы (>=1)')]
     per_page: Annotated[int, Query(15, ge=1, le=25, description='Элементов на странице')]
@@ -29,9 +30,11 @@ def get_current_user_id(token=Depends(get_token)) -> int | None:
 
 UserIdDep = Annotated[int, Depends(get_current_user_id)]
 
-#генератор - открываект контекстный менеджер и отдает сущность
+
+# генератор - открываект контекстный менеджер и отдает сущность
 async def get_db():
-    async with DBManager(session_factory = async_session_maker) as db:
+    async with DBManager(session_factory=async_session_maker) as db:
         yield db
+
 
 DBDep = Annotated[DBManager, Depends(get_db)]

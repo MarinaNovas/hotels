@@ -44,8 +44,6 @@ async def put_room(db: DBDep, hotel_id: int, room_id: int, data: RoomAddRequest 
 @router.patch('/{hotel_id}/rooms/{room_id}')
 async def patch_room(db: DBDep, hotel_id: int, room_id: int, data: RoomPatchRequest):
     room_data = RoomPatch(hotel_id=hotel_id, **data.model_dump(exclude_unset=True))
-    await db.rooms.edit(
-        room_data, exclude_unset=True, id=room_id, hotel_id=hotel_id
-    )
+    await db.rooms.edit(room_data, exclude_unset=True, id=room_id, hotel_id=hotel_id)
     await db.commit()
     return {'SUCCESS': 'OK'}
