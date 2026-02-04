@@ -16,7 +16,7 @@ class RoomsRepository(BaseRepository):
 
     async def get_filtered_by_time(self, hotel_id: int, date_from: date, date_to: date):
         query = rooms_ids_for_booking(date_from, date_to, hotel_id)
-        #print(query.compile(bind=engine, compile_kwargs={'literal_binds': True}))
+        # print(query.compile(bind=engine, compile_kwargs={'literal_binds': True}))
         return await self.get_filtered(self.model.id.in_(query))
 
     async def add(self, data: RoomAdd):

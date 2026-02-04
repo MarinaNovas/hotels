@@ -38,10 +38,38 @@ async def get_hotels(
     # # print(type(hotels_result), hotels_result)
     # # FastApi сам конвертируют данные к json
 
+
 @router.get('')
-async def get_hotels_by_time( db: DBDep, date_from: date = Query(example='2026-07-01'),
-    date_to: date = Query(example='2026-07-10')):
-    return await db.hotels.get_filtered_by_time(date_from, date_to)
+async def get_hotels_by_time(
+    pagination: PaginationDep,
+    db: DBDep,
+    date_from: date = Query(
+        openapi_examples={
+            'default': {
+                'summary': 'Пример даты заезда',
+                'value': '2026-07-01',
+            }
+        }
+    ),
+    date_to: date = Query(
+        openapi_examples={
+            'default': {
+                'summary': 'Пример даты выезда',
+                'value': '2026-07-10',
+            }
+        }
+    ),
+    title: str | None = Query(None, description='Наименование'),
+    location: str | None = Query(None, description='Адрес'),
+):
+    return await db.hotels.get_filtered_by_time(
+        date_from,
+        date_to,
+        limit=pagination.per_page,
+        offset=(pagination.page - 1) * pagination.per_page,
+        title=title,
+        location=location,
+    )
 
     # query = select(HotelsOrm)
     # if title:
@@ -58,6 +86,7 @@ async def get_hotels_by_time( db: DBDep, date_from: date = Query(example='2026-0
     # hotels_result = result.scalars().all()
     # # print(type(hotels_result), hotels_result)
     # # FastApi сам конвертируют данные к json
+
 
 @router.get('/{hotel_id}')
 async def get_hotel(
