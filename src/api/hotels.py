@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import APIRouter, Body, Query
 
 from src.api.dependencies import DBDep, PaginationDep
@@ -6,7 +8,7 @@ from src.schemas.hotels import HotelAdd, HotelPATCH
 router = APIRouter(prefix='/hotels', tags=['Отели'])
 
 
-@router.get('')
+@router.get('/all')
 async def get_hotels(
     pagination: PaginationDep,
     db: DBDep,
@@ -36,6 +38,26 @@ async def get_hotels(
     # # print(type(hotels_result), hotels_result)
     # # FastApi сам конвертируют данные к json
 
+@router.get('')
+async def get_hotels_by_time( db: DBDep, date_from: date = Query(example='2026-07-01'),
+    date_to: date = Query(example='2026-07-10')):
+    return await db.hotels.get_filtered_by_time(date_from, date_to)
+
+    # query = select(HotelsOrm)
+    # if title:
+    #     query = query.filter(func.lower(HotelsOrm.title).contains(title.strip().lower()))
+    # if location:
+    #     query = query.filter(func.lower(HotelsOrm.location).contains(location.strip().lower()))
+    #
+    # query = query.limit(pagination.per_page).offset((pagination.page - 1) * pagination.per_page)
+    #
+    # print(query.compile(engine, compile_kwargs={'literal_binds': True}))
+    # result = await session.execute(query)
+    # # result.all() - так приходит лист из кортежей
+    # # result.scalar().all() - эти команды достанут из каждого кортежа превый элемент
+    # hotels_result = result.scalars().all()
+    # # print(type(hotels_result), hotels_result)
+    # # FastApi сам конвертируют данные к json
 
 @router.get('/{hotel_id}')
 async def get_hotel(
