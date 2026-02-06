@@ -7,6 +7,9 @@ class RoomAddRequest(BaseModel):
     price: int
     quantity: int
 
+class RoomAddFullRequest(RoomAddRequest):
+    facilities_ids: list[int]
+
 
 class RoomAdd(RoomAddRequest):
     hotel_id: int
