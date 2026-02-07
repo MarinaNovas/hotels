@@ -3,11 +3,12 @@ from datetime import date
 from fastapi import HTTPException
 from sqlalchemy import insert, select, func
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import selectinload, joinedload
 
 from src.models.rooms import RoomsOrm
 from src.repositories.base import BaseRepository
 from src.repositories.utils import rooms_ids_for_booking
-from src.schemas.rooms import Room, RoomAdd
+from src.schemas.rooms import Room, RoomAdd, RoomWithRls
 
 
 class RoomsRepository(BaseRepository):
@@ -15,9 +16,20 @@ class RoomsRepository(BaseRepository):
     schema = Room
 
     async def get_filtered_by_time(self, hotel_id: int, date_from: date, date_to: date):
-        query = rooms_ids_for_booking(date_from, date_to, hotel_id)
+        rooms_ids = rooms_ids_for_booking(date_from, date_to, hotel_id)
+
+        query = (
+            select(self.model)
+            .options(selectinload(self.model.facilities))
+            .filter(RoomsOrm.id.in_(rooms_ids))
+        )
+        result = await self.session.execute(query)
+
         # print(query.compile(bind=engine, compile_kwargs={'literal_binds': True}))
-        return await self.get_filtered(self.model.id.in_(query))
+        return [
+            RoomWithRls.model_validate(item, from_attributes=True)
+            for item in result.scalars().all()
+        ]
 
     async def add(self, data: RoomAdd):
         try:
