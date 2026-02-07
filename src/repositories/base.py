@@ -2,10 +2,11 @@ from pydantic import BaseModel
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.repositories.mappers.base import DataMapper
 
 class BaseRepository:
     model = None
-    schema: BaseModel = None
+    mapper: DataMapper = None
 
     def __init__(self, session: AsyncSession):
         self.session = session
@@ -15,8 +16,8 @@ class BaseRepository:
         result = await self.session.execute(query)
 
         return [
-            self.schema.model_validate(item, from_attributes=True)
-            for item in result.scalars().all()
+            self.mapper.map_to_domain_entity(model)
+            for model in result.scalars().all()
         ]
 
     async def get_all(self, *args, **kwargs):
@@ -28,14 +29,14 @@ class BaseRepository:
         model = result.scalars().one_or_none()
         if model is None:
             return None
-        return self.schema.model_validate(model, from_attributes=True)
+        return self.mapper.map_to_domain_entity(model)
 
     async def add(self, data: BaseModel):
         add_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
         # print(add_hotel_stmt.compile(engine, compile_kwargs = {'literal_binds': True}))
         result = await self.session.execute(add_stmt)
         model = result.scalars().one()
-        return self.schema.model_validate(model, from_attributes=True)
+        return self.mapper.map_to_domain_entity(model)
 
     async def add_bulk(self, data: list[BaseModel]):
         add_data_stmt = insert(self.model).values([item.model_dump() for item in data])

@@ -6,13 +6,14 @@ from src.models.rooms import RoomsOrm
 from src.repositories.base import BaseRepository
 from src.database import engine
 from src.models.hotels import HotelsOrm
+from src.repositories.mappers.mappers import HotelDataMapper
 from src.repositories.utils import rooms_ids_for_booking
 from src.schemas.hotels import Hotel
 
 
 class HotelsRepository(BaseRepository):
     model = HotelsOrm
-    schema = Hotel
+    mapper = HotelDataMapper
 
     async def get_all(
         self,
@@ -32,7 +33,7 @@ class HotelsRepository(BaseRepository):
         result = await self.session.execute(query)
 
         return [
-            self.schema.model_validate(hotel, from_attributes=True)
+            self.mapper.map_to_domain_entity(hotel)
             for hotel in result.scalars().all()
         ]
 
@@ -61,6 +62,6 @@ class HotelsRepository(BaseRepository):
         result = await self.session.execute(query)
 
         return [
-            self.schema.model_validate(hotel, from_attributes=True)
+            self.mapper.map_to_domain_entity(hotel)
             for hotel in result.scalars().all()
         ]

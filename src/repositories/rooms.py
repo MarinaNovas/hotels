@@ -7,13 +7,14 @@ from sqlalchemy.orm import selectinload, joinedload
 
 from src.models.rooms import RoomsOrm
 from src.repositories.base import BaseRepository
+from src.repositories.mappers.mappers import RoomDatWithRlsaMapper, RoomDataMapper
 from src.repositories.utils import rooms_ids_for_booking
 from src.schemas.rooms import Room, RoomAdd, RoomWithRls
 
 
 class RoomsRepository(BaseRepository):
     model = RoomsOrm
-    schema = Room
+    mapper = RoomDataMapper
 
     async def get_filtered_by_time(self, hotel_id: int, date_from: date, date_to: date):
         rooms_ids = rooms_ids_for_booking(date_from, date_to, hotel_id)
@@ -27,7 +28,7 @@ class RoomsRepository(BaseRepository):
 
         # print(query.compile(bind=engine, compile_kwargs={'literal_binds': True}))
         return [
-            RoomWithRls.model_validate(item, from_attributes=True)
+            RoomDatWithRlsaMapper.map_to_domain_entity(item)
             for item in result.scalars().all()
         ]
 
@@ -37,14 +38,14 @@ class RoomsRepository(BaseRepository):
         model = result.scalars().one_or_none()
         if model is None:
             return None
-        return RoomWithRls.model_validate(model, from_attributes=True)
+        return RoomDatWithRlsaMapper.map_to_domain_entity(model)
 
     async def add(self, data: RoomAdd):
         try:
             add_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
             result = await self.session.execute(add_stmt)
             model = result.scalars().one()
-            return self.schema.model_validate(model, from_attributes=True)
+            return self.mapper.map_to_domain_entity(model)
         except IntegrityError:
             raise HTTPException(status_code=400, detail='Отель с таким id не существует')
 
