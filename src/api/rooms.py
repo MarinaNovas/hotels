@@ -4,7 +4,12 @@ from fastapi import APIRouter, Body, Query
 
 from src.api.dependencies import DBDep
 from src.schemas.facilities import RoomFacilityAdd
-from src.schemas.rooms import RoomAdd, RoomAddFullRequest, RoomAddRequest, RoomPatch, RoomPatchRequest
+from src.schemas.rooms import (
+    RoomAdd,
+    RoomAddFullRequest,
+    RoomPatch,
+    RoomPatchRequestFull,
+)
 
 router = APIRouter(prefix='/hotels', tags=['Комнаты'])
 
@@ -43,11 +48,13 @@ async def get_room(db: DBDep, hotel_id: int, room_id: int):
 
 
 @router.post('/{hotel_id}/rooms')
-async def post_room(db: DBDep, hotel_id: int, data:  RoomAddFullRequest = Body()):
+async def post_room(db: DBDep, hotel_id: int, data: RoomAddFullRequest = Body()):
     room_data = RoomAdd(hotel_id=hotel_id, **data.model_dump())
     result = await db.rooms.add(room_data)
 
-    room_facilities_data = [RoomFacilityAdd(room_id = result.id, facility_id = f_id) for f_id in data.facilities_ids ]
+    room_facilities_data = [
+        RoomFacilityAdd(room_id=result.id, facility_id=f_id) for f_id in data.facilities_ids
+    ]
     await db.rooms_facilities.add_bulk(room_facilities_data)
     await db.commit()
     return {'SUCCESS': 'OK', 'result': result}
@@ -61,16 +68,25 @@ async def delete_room(db: DBDep, hotel_id, room_id: int):
 
 
 @router.put('/{hotel_id}/rooms/{room_id}')
-async def put_room(db: DBDep, hotel_id: int, room_id: int, data: RoomAddRequest = Body()):
+async def put_room(db: DBDep, hotel_id: int, room_id: int, data: RoomAddFullRequest = Body()):
     room_data = RoomAdd(hotel_id=hotel_id, **data.model_dump())
     await db.rooms.edit(room_data, id=room_id, hotel_id=hotel_id)
+    await db.rooms_facilities.set_room_facilities(
+        room_id=room_id, facilities_ids=data.facilities_ids
+    )
     await db.commit()
     return {'SUCCESS': 'OK'}
 
 
 @router.patch('/{hotel_id}/rooms/{room_id}')
-async def patch_room(db: DBDep, hotel_id: int, room_id: int, data: RoomPatchRequest):
-    room_data = RoomPatch(hotel_id=hotel_id, **data.model_dump(exclude_unset=True))
+async def patch_room(db: DBDep, hotel_id: int, room_id: int, data: RoomPatchRequestFull):
+    room_data_dict = data.model_dump(exclude_unset=True)
+    room_data = RoomPatch(hotel_id=hotel_id, **room_data_dict)
+    print(room_data)
     await db.rooms.edit(room_data, exclude_unset=True, id=room_id, hotel_id=hotel_id)
+    if 'facilities_ids' in room_data_dict:
+        await db.rooms_facilities.set_room_facilities(
+            room_id=room_id, facilities_ids=room_data_dict['facilities_ids']
+        )
     await db.commit()
     return {'SUCCESS': 'OK'}
