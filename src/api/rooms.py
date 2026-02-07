@@ -43,7 +43,7 @@ async def get_rooms(
 
 @router.get('/{hotel_id}/rooms/{room_id}')
 async def get_room(db: DBDep, hotel_id: int, room_id: int):
-    result = await db.rooms.get_one_or_none(id=room_id, hotel_id=hotel_id)
+    result = await db.rooms.get_one_or_none_with_rls(id=room_id, hotel_id=hotel_id)
     return result
 
 
