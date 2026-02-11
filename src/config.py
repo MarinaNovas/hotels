@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     DB_PASS: str
     model_config = SettingsConfigDict(env_file=BASE_DIR / '.env', extra='ignore')
 
+    REDIS_HOST: str
+    REDIS_PORT: int
     # DSN (data source name) - стандартный адрес для подключения к БД
     @property
     def DB_URL(self):
