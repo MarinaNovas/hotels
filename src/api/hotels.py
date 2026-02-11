@@ -1,20 +1,24 @@
 from datetime import date
 
 from fastapi import APIRouter, Body, Query
+from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep, PaginationDep
 from src.schemas.hotels import HotelAdd, HotelPATCH
+from src.utils.redis import facilities_key_builder
 
 router = APIRouter(prefix='/hotels', tags=['Отели'])
 
 
 @router.get('/all')
+@cache(expire = 10, key_builder=facilities_key_builder)
 async def get_hotels(
     pagination: PaginationDep,
     db: DBDep,
     title: str | None = Query(None, description='Наименование'),
     location: str | None = Query(None, description='Адрес'),
 ):
+    print('ИДУ В БД')
     return await db.hotels.get_all(
         limit=pagination.per_page,
         offset=(pagination.page - 1) * pagination.per_page,
