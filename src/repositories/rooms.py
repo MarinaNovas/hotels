@@ -27,13 +27,12 @@ class RoomsRepository(BaseRepository):
         result = await self.session.execute(query)
 
         # print(query.compile(bind=engine, compile_kwargs={'literal_binds': True}))
-        return [
-            RoomDatWithRlsaMapper.map_to_domain_entity(item)
-            for item in result.scalars().all()
-        ]
+        return [RoomDatWithRlsaMapper.map_to_domain_entity(item) for item in result.scalars().all()]
 
     async def get_one_or_none_with_rls(self, **filter_by):
-        query = select(self.model).options(selectinload(self.model.facilities)).filter_by(**filter_by)
+        query = (
+            select(self.model).options(selectinload(self.model.facilities)).filter_by(**filter_by)
+        )
         result = await self.session.execute(query)
         model = result.scalars().one_or_none()
         if model is None:

@@ -32,10 +32,7 @@ class HotelsRepository(BaseRepository):
         print(query.compile(engine, compile_kwargs={'literal_binds': True}))
         result = await self.session.execute(query)
 
-        return [
-            self.mapper.map_to_domain_entity(hotel)
-            for hotel in result.scalars().all()
-        ]
+        return [self.mapper.map_to_domain_entity(hotel) for hotel in result.scalars().all()]
 
     async def get_filtered_by_time(
         self,
@@ -61,7 +58,4 @@ class HotelsRepository(BaseRepository):
         query = query.limit(limit).offset(offset)
         result = await self.session.execute(query)
 
-        return [
-            self.mapper.map_to_domain_entity(hotel)
-            for hotel in result.scalars().all()
-        ]
+        return [self.mapper.map_to_domain_entity(hotel) for hotel in result.scalars().all()]
