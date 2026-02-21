@@ -8,3 +8,7 @@ celery_instance = Celery(
     include=['src.tasks.tasks'],
     # result_backend = settings.REDIS_URL,
 )
+
+celery_instance.conf.beat_schedule = {
+    'luboe_nazvsnie': {'task': 'booking_today_checkin', 'schedule': 5}
+}
