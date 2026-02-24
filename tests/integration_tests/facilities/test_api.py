@@ -10,7 +10,9 @@ async def test_post_facilities(ac):
     })
     assert response.status_code == 200
     res = response.json()
+    print(f"{res=}")
     assert isinstance(res, dict)
-    assert res["data"]["title"] == facility_title
-    assert "data" in res
+    assert res["result"]["title"] == facility_title
+    assert "result" in res
+
 
