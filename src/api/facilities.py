@@ -22,5 +22,5 @@ async def get_facilities(
 async def create_facility(db: DBDep, data: FacilityAdd = Body()):
     result = await db.facilities.add(data)
     await db.commit()
-    #test_task.delay()
+    # test_task.delay()
     return {'SUCCESS': 'OK', 'result': result}

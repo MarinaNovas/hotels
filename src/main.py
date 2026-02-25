@@ -45,8 +45,9 @@ async def lifespan(app: FastAPI):
     await redis_manager.close()
     # при выключении и перезагрузке проекта
 
+
 if settings.MODE == 'TEST':
-    FastAPICache.init(InMemoryBackend(), prefix = 'fastapi-cache')
+    FastAPICache.init(InMemoryBackend(), prefix='fastapi-cache')
 
 
 app = FastAPI(lifespan=lifespan)

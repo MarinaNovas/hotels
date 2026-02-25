@@ -1,7 +1,7 @@
 import json
 from unittest import mock
 
-mock.patch("fastapi_cache.decorator.cache", lambda *args, **kwargs: lambda f: f).start()
+mock.patch('fastapi_cache.decorator.cache', lambda *args, **kwargs: lambda f: f).start()
 
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -25,12 +25,15 @@ async def get_db_null_pull():
     async with DBManager(session_factory=async_session_maker_null_pull) as db:
         yield db
 
+
 app.dependency_overrides[get_db] = get_db_null_pull
+
 
 @pytest.fixture(scope='function')
 async def db():
     async for db_ in get_db_null_pull():
         yield db_
+
 
 @pytest.fixture(scope='session', autouse=True)
 async def setup_database(check_test_mode):
@@ -47,7 +50,7 @@ async def setup_database(check_test_mode):
     hotels_ = [HotelAdd.model_validate(hotel) for hotel in hotels]
     rooms_ = [RoomAdd.model_validate(room) for room in rooms]
 
-    async with DBManager(session_factory = async_session_maker_null_pull) as db_:
+    async with DBManager(session_factory=async_session_maker_null_pull) as db_:
         await db_.hotels.add_bulk(hotels_)
         await db_.rooms.add_bulk(rooms_)
         await db_.commit()
@@ -55,9 +58,17 @@ async def setup_database(check_test_mode):
 
 @pytest.fixture(scope='session')
 async def ac():
-    async with AsyncClient(transport = ASGITransport(app = app), base_url = 'http://test') as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url='http://test') as ac:
         yield ac
+
 
 @pytest.fixture(scope='session', autouse=True)
 async def register_user(setup_database, ac):
     await ac.post('/auth/register', json={'email': 'kot@pes.com', 'password': '1234'})
+
+
+@pytest.fixture(scope='session')
+async def authenticated_ac(register_user, ac):
+    await ac.post('/auth/login', json={'email': 'kot@pes.com', 'password': '1234'})
+    assert ac.cookies['access_token']
+    yield ac
