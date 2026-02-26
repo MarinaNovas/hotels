@@ -11,6 +11,5 @@ async def test_add_booking(db, authenticated_ac):
     assert response.status_code == 200
     res = response.json()
     assert isinstance(res, dict)
-    assert res['status'] == "OK"
+    assert res['status'] == 'OK'
     assert 'result' in res
-

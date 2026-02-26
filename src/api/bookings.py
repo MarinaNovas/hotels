@@ -24,8 +24,9 @@ async def add_booking(user_id: UserIdDep, db: DBDep, data: BookingAddRequest = B
     # создать схему номера BookingAdd
     # добавить бронирование конкретному пользователю
     room = await db.rooms.get_one_or_none(id=data.room_id)
+    hotel = await db.hotels.get_one_or_none(id = room.hotel_id)
     price = room.price
     bookings_data = BookingAdd(user_id=user_id, price=price, **data.model_dump())
-    result = await db.bookings.add(bookings_data)
+    result = await db.bookings.add_booking(bookings_data, hotel_id=hotel.id)
     await db.commit()
     return {'status': 'OK', 'result': result}

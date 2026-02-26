@@ -6,6 +6,7 @@ from src.models.bookings import BookingsOrm
 from src.models.rooms import RoomsOrm
 
 
+# доступные для бронирования номера
 def rooms_ids_for_booking(
     date_from: date,
     date_to: date,
