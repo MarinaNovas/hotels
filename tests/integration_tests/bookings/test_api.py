@@ -2,6 +2,7 @@ import pytest
 
 from tests.conftest import get_db_null_pull
 
+
 @pytest.mark.parametrize(
     'room_id, data_from, date_to, status_code',
     [
@@ -30,7 +31,7 @@ async def test_add_booking(room_id, data_from, date_to, status_code, db, authent
         assert 'result' in res
 
 
-@pytest.fixture(scope = "module")
+@pytest.fixture(scope='module')
 async def delete_all_bookings():
     async for db_ in get_db_null_pull():
         await db_.bookings.delete()
@@ -48,7 +49,12 @@ async def delete_all_bookings():
     ],
 )
 async def test_add_and_get_my_bookings(
-    room_id, data_from, date_to, booked_rooms, delete_all_bookings, authenticated_ac,
+    room_id,
+    data_from,
+    date_to,
+    booked_rooms,
+    delete_all_bookings,
+    authenticated_ac,
 ):
     response = await authenticated_ac.post(
         '/bookings',
@@ -59,6 +65,6 @@ async def test_add_and_get_my_bookings(
         },
     )
     assert response.status_code == 200
-    response_my_bookings = await authenticated_ac.get("/bookings/me")
+    response_my_bookings = await authenticated_ac.get('/bookings/me')
     assert response_my_bookings.status_code == 200
     assert len(response_my_bookings.json()) == booked_rooms

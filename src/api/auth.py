@@ -11,10 +11,13 @@ router = APIRouter(prefix='/auth', tags=['Аутентификация и авт
 
 @router.post('/register')
 async def register_user(db: DBDep, data: UserRequestAdd):
-    hashed_password = AuthService().hash_password(data.password)
-    user_data = UserAdd(email=data.email, hashed_password=hashed_password)
-    await db.users.add(user_data)
-    await db.commit()
+    try:
+        hashed_password = AuthService().hash_password(data.password)
+        user_data = UserAdd(email=data.email, hashed_password=hashed_password)
+        await db.users.add(user_data)
+        await db.commit()
+    except:
+        return HTTPException(400)
     return {'SUCCESS': 'OK'}
 
 
