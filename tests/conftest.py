@@ -8,7 +8,7 @@ from httpx import ASGITransport, AsyncClient
 
 from src.api.dependencies import get_db
 from src.config import settings
-from src.database import Base, async_session_maker, async_session_maker_null_pull, engine_null_pull
+from src.database import Base, async_session_maker_null_pull, engine_null_pull
 from src.main import app
 from src.models import *
 from src.schemas.hotels import HotelAdd

@@ -26,8 +26,7 @@ class BookingsRepository(BaseRepository):
         rooms_ids_to_book: list[int] = rooms_ids_to_book_res.scalars().all()
 
         if data.room_id in rooms_ids_to_book:
-            new_booking= await self.add(data)
+            new_booking = await self.add(data)
             return new_booking
         else:
             raise Exception
-
