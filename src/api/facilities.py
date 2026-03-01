@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Body, Request, Response
+from fastapi import APIRouter, Body
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep
 from src.schemas.facilities import FacilityAdd
-from src.tasks.tasks import test_task
 from src.utils.redis import facilities_key_builder
 
 router = APIRouter(prefix='/facilities', tags=['Удобства'])

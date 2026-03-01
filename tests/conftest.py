@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 import json
 from unittest import mock
 
@@ -10,7 +11,7 @@ from src.api.dependencies import get_db
 from src.config import settings
 from src.database import Base, async_session_maker_null_pull, engine_null_pull
 from src.main import app
-from src.models import *
+from src.models import *  # noqa
 from src.schemas.hotels import HotelAdd
 from src.schemas.rooms import RoomAdd
 from src.utils.db_manager import DBManager
@@ -41,10 +42,10 @@ async def setup_database(check_test_mode):
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
-    with open('tests/mock_hotels.json', encoding='utf-8') as file_hotels:
+    with open('tests/mock_hotels.json', encoding='utf-8') as file_hotels:  # noqa: ASYNC230
         hotels = json.load(file_hotels)
 
-    with open('tests/mock_rooms.json', encoding='utf-8') as file_rooms:
+    with open('tests/mock_rooms.json', encoding='utf-8') as file_rooms:  # noqa: ASYNC230
         rooms = json.load(file_rooms)
 
     hotels_ = [HotelAdd.model_validate(hotel) for hotel in hotels]

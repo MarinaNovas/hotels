@@ -2,8 +2,6 @@ from fastapi import APIRouter, HTTPException, Response
 
 from src.api.dependencies import DBDep, UserIdDep
 from src.schemas.users import UserAdd, UserRequestAdd
-
-
 from src.services.auth import AuthService
 
 router = APIRouter(prefix='/auth', tags=['Аутентификация и авторизация'])
@@ -16,8 +14,8 @@ async def register_user(db: DBDep, data: UserRequestAdd):
         user_data = UserAdd(email=data.email, hashed_password=hashed_password)
         await db.users.add(user_data)
         await db.commit()
-    except:
-        return HTTPException(400)
+    except:  # noqa: E722
+        return HTTPException(status_code=400)
     return {'SUCCESS': 'OK'}
 
 

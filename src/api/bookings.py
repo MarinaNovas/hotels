@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Body
 
 from src.api.dependencies import DBDep, UserIdDep
@@ -19,7 +21,7 @@ async def get_bookings_me(user_id: UserIdDep, db: DBDep):
 
 
 @router.post('')
-async def add_booking(user_id: UserIdDep, db: DBDep, data: BookingAddRequest = Body()):
+async def add_booking(user_id: UserIdDep, db: DBDep, data: Annotated[BookingAddRequest, Body(...)]):
     # получить цену номеру
     # создать схему номера BookingAdd
     # добавить бронирование конкретному пользователю
