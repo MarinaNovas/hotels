@@ -13,24 +13,24 @@ def rooms_ids_for_booking(
     hotel_id: int | None = None,
 ):
     apartments_count = (
-        select(BookingsOrm.room_id, func.count('*').label('apartments_booked'))
+        select(BookingsOrm.room_id, func.count("*").label("apartments_booked"))
         .select_from(BookingsOrm)
         .filter(BookingsOrm.date_from <= date_to, BookingsOrm.date_to >= date_from)
         .group_by(BookingsOrm.room_id)
-        .cte(name='apartments_count')
+        .cte(name="apartments_count")
     )
 
     apartments_left_table = (
         select(
-            RoomsOrm.id.label('room_id'),
+            RoomsOrm.id.label("room_id"),
             RoomsOrm.quantity,
             (RoomsOrm.quantity - func.coalesce(apartments_count.c.apartments_booked, 0)).label(
-                'apartment_left'
+                "apartment_left"
             ),
         )
         .select_from(RoomsOrm)
         .outerjoin(apartments_count, RoomsOrm.id == apartments_count.c.room_id)
-        .cte(name='apartments_left_table')
+        .cte(name="apartments_left_table")
     )
 
     get_rooms_by_hotel = select(RoomsOrm.id).select_from(RoomsOrm)
@@ -38,7 +38,7 @@ def rooms_ids_for_booking(
     if hotel_id is not None:
         get_rooms_by_hotel = get_rooms_by_hotel.filter_by(hotel_id=hotel_id)
 
-    get_rooms_by_hotel = get_rooms_by_hotel.subquery(name='get_rooms_by_hotel')
+    get_rooms_by_hotel = get_rooms_by_hotel.subquery(name="get_rooms_by_hotel")
 
     query = (
         select(apartments_left_table.c.room_id)

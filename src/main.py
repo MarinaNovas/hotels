@@ -25,7 +25,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 async def send_emails_bookings_today_checkin():
     async for db in get_db():
         bookings = await db.bookings.get_bookings_with_today_checkin()
-        print(f'{bookings=}')
+        print(f"{bookings=}")
 
 
 async def run_send_email_regularly():
@@ -39,14 +39,14 @@ async def lifespan(app: FastAPI):
     # при старте проекта
     asyncio.create_task(run_send_email_regularly())
     await redis_manager.connect()
-    FastAPICache.init(RedisBackend(redis_manager.redis), prefix='fastapi-cache')
+    FastAPICache.init(RedisBackend(redis_manager.redis), prefix="fastapi-cache")
     yield
     await redis_manager.close()
     # при выключении и перезагрузке проекта
 
 
-if settings.MODE == 'TEST':
-    FastAPICache.init(InMemoryBackend(), prefix='fastapi-cache')
+if settings.MODE == "TEST":
+    FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
 
 
 app = FastAPI(lifespan=lifespan)
@@ -57,5 +57,5 @@ app.include_router(router_bookings)
 app.include_router(router_facilities)
 app.include_router(router_images)
 
-if __name__ == '__main__':
-    uvicorn.run('main:app', host='127.0.0.1', port=8000, reload=True)
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

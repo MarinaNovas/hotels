@@ -29,7 +29,7 @@ class HotelsRepository(BaseRepository):
             query = query.filter(func.lower(self.model.location).contains(location.strip().lower()))
 
         query = query.limit(limit).offset(offset)
-        print(query.compile(engine, compile_kwargs={'literal_binds': True}))
+        print(query.compile(engine, compile_kwargs={"literal_binds": True}))
         result = await self.session.execute(query)
 
         return [self.mapper.map_to_domain_entity(hotel) for hotel in result.scalars().all()]

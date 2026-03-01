@@ -8,14 +8,14 @@ from src.config import settings
 
 
 class AuthService:
-    pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
     def create_access_token(self, data: dict):
         to_encode = data.copy()
         expire = datetime.now(timezone.utc) + timedelta(  # noqa: UP017
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
-        to_encode.update({'exp': expire})
+        to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(
             to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
         )
@@ -25,7 +25,7 @@ class AuthService:
         try:
             return jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=settings.JWT_ALGORITHM)
         except jwt.exceptions.DecodeError as err:
-            raise HTTPException(status_code=401, detail='Неверный токен') from err
+            raise HTTPException(status_code=401, detail="Неверный токен") from err
 
     def verify_password(self, plain_password, hashed_password):
         return self.pwd_context.verify(plain_password, hashed_password)

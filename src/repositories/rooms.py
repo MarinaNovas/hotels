@@ -46,4 +46,4 @@ class RoomsRepository(BaseRepository):
             model = result.scalars().one()
             return self.mapper.map_to_domain_entity(model)
         except IntegrityError as err:
-            raise HTTPException(status_code=400, detail='Отель с таким id не существует') from err
+            raise HTTPException(status_code=400, detail="Отель с таким id не существует") from err
