@@ -1,9 +1,12 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, HTTPException
 
 from src.api.dependencies import DBDep, UserIdDep
+from src.exceptions import AllRoomsAreBookedException, ObjectNotFoundException
 from src.schemas.bookings import BookingAdd, BookingAddRequest
+from src.schemas.hotels import Hotel
+from src.schemas.rooms import Room
 
 router = APIRouter(prefix="/bookings", tags=["Бронирование"])
 
@@ -25,10 +28,16 @@ async def add_booking(user_id: UserIdDep, db: DBDep, data: Annotated[BookingAddR
     # получить цену номеру
     # создать схему номера BookingAdd
     # добавить бронирование конкретному пользователю
-    room = await db.rooms.get_one_or_none(id=data.room_id)
-    hotel = await db.hotels.get_one_or_none(id=room.hotel_id)
+    try:
+        room: Room | None = await db.rooms.get_one(id=data.room_id)
+    except ObjectNotFoundException:
+        raise HTTPException(status_code = 400, detail = "Номер не найден")
+    hotel: Hotel | None = await db.hotels.get_one_or_none(id=room.hotel_id)
     price = room.price
     bookings_data = BookingAdd(user_id=user_id, price=price, **data.model_dump())
-    result = await db.bookings.add_booking(bookings_data, hotel_id=hotel.id)
+    try:
+        result = await db.bookings.add_booking(bookings_data, hotel_id=hotel.id)
+    except AllRoomsAreBookedException as ex:
+        raise HTTPException(status_code = 409, detail = ex.detail)
     await db.commit()
     return {"status": "OK", "result": result}
