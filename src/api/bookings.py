@@ -31,13 +31,13 @@ async def add_booking(user_id: UserIdDep, db: DBDep, data: Annotated[BookingAddR
     try:
         room: Room | None = await db.rooms.get_one(id=data.room_id)
     except ObjectNotFoundException:
-        raise HTTPException(status_code = 400, detail = "Номер не найден")
+        raise HTTPException(status_code=404, detail="Номер не найден")
     hotel: Hotel | None = await db.hotels.get_one_or_none(id=room.hotel_id)
     price = room.price
     bookings_data = BookingAdd(user_id=user_id, price=price, **data.model_dump())
     try:
         result = await db.bookings.add_booking(bookings_data, hotel_id=hotel.id)
     except AllRoomsAreBookedException as ex:
-        raise HTTPException(status_code = 409, detail = ex.detail)
+        raise HTTPException(status_code=409, detail=ex.detail)
     await db.commit()
     return {"status": "OK", "result": result}

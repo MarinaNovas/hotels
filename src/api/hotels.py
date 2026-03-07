@@ -1,9 +1,14 @@
 from datetime import date
 
-from fastapi import APIRouter, Body, Query
+from fastapi import APIRouter, Body, Query, HTTPException
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep, PaginationDep
+from src.exceptions import (
+    HotelNotFoundHTTPException,
+    ObjectNotFoundException,
+    check_date_to_after_date_from,
+)
 from src.schemas.hotels import HotelAdd, HotelPATCH
 from src.utils.redis import facilities_key_builder
 
@@ -66,6 +71,7 @@ async def get_hotels_by_time(
     title: str | None = Query(None, description="Наименование"),
     location: str | None = Query(None, description="Адрес"),
 ):
+    check_date_to_after_date_from(date_from, date_to)
     return await db.hotels.get_filtered_by_time(
         date_from,
         date_to,
@@ -97,7 +103,10 @@ async def get_hotel(
     db: DBDep,
     hotel_id: int,
 ):
-    result = await db.hotels.get_one_or_none(id=hotel_id)
+    try:
+        result = await db.hotels.get_one(id=hotel_id)
+    except ObjectNotFoundException:
+        raise HotelNotFoundHTTPException
     return result
 
 
