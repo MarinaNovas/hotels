@@ -2,6 +2,7 @@ import asyncio
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
+import logging
 
 import uvicorn
 from fastapi import FastAPI
@@ -18,6 +19,8 @@ from src.api.images import router as router_images
 from src.api.rooms import router as router_rooms
 from src.config import settings
 from src.init import redis_manager
+
+logging.basicConfig(level=logging.DEBUG)
 
 sys.path.append(str(Path(__file__).parent.parent))
 
@@ -40,6 +43,7 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(run_send_email_regularly())
     await redis_manager.connect()
     FastAPICache.init(RedisBackend(redis_manager.redis), prefix="fastapi-cache")
+    logging.info("FastAPI cache inicialized ")
     yield
     await redis_manager.close()
     # при выключении и перезагрузке проекта
