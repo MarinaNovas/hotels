@@ -2,9 +2,10 @@ from datetime import date
 
 from fastapi import HTTPException
 from sqlalchemy import insert, select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import selectinload
 
+from src.exceptions import ObjectNotFoundException, RoomNotFoundException
 from src.models.rooms import RoomsOrm
 from src.repositories.base import BaseRepository
 from src.repositories.mappers.mappers import RoomDataMapper, RoomDatWithRlsaMapper
@@ -29,14 +30,16 @@ class RoomsRepository(BaseRepository):
         # print(query.compile(bind=engine, compile_kwargs={'literal_binds': True}))
         return [RoomDatWithRlsaMapper.map_to_domain_entity(item) for item in result.scalars().all()]
 
-    async def get_one_or_none_with_rls(self, **filter_by):
+    async def get_one_with_rls(self, **filter_by):
         query = (
             select(self.model).options(selectinload(self.model.facilities)).filter_by(**filter_by)
         )
         result = await self.session.execute(query)
-        model = result.scalars().one_or_none()
-        if model is None:
-            return None
+
+        try:
+            model = result.scalar_one()
+        except NoResultFound:
+            raise RoomNotFoundException
         return RoomDatWithRlsaMapper.map_to_domain_entity(model)
 
     async def add(self, data: RoomAdd):
