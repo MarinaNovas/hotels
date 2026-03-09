@@ -15,7 +15,7 @@ async def get_facilities(
     db: DBDep,
 ):
     print("ИДУ В БД")
-    return await db.facilities.get_all()
+    return await FacilitiesService(db).get_facilities()
 
 
 @router.post("")

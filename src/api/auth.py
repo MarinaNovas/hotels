@@ -1,33 +1,38 @@
 from fastapi import APIRouter, HTTPException, Response
 
 from src.api.dependencies import DBDep, UserIdDep
-from src.exceptions import ObjectAlreadyExistsException
+from src.exceptions import EmailNotRegisteredException, IncorrectPasswordException, ObjectAlreadyExistsException, \
+    UserAlreadyExistsException
 from src.schemas.users import UserAdd, UserRequestAdd
 from src.services.auth import AuthService
 
 router = APIRouter(prefix="/auth", tags=["Аутентификация и авторизация"])
 
+class UserEmailAlreadyExistsHTTPException:
+    pass
 
 @router.post("/register")
 async def register_user(db: DBDep, data: UserRequestAdd):
-    hashed_password = AuthService().hash_password(data.password)
-    user_data = UserAdd(email=data.email, hashed_password=hashed_password)
     try:
-        await db.users.add(user_data)
-        await db.commit()
-    except ObjectAlreadyExistsException as ex:  # noqa: E722
-        raise HTTPException(status_code=409, detail="Пользователь уже существует")
+        await AuthService(db).register_user(data)
+    except UserAlreadyExistsException:
+        raise UserEmailAlreadyExistsHTTPException
     return {"SUCCESS": "OK"}
 
+class EmailNotRegisteredHTTPException:
+    pass
+
+class IncorrectPasswordHTTPException:
+    pass
 
 @router.post("/login")
 async def login_user(db: DBDep, data: UserRequestAdd, response: Response):
-    user = await db.users.get_user_with_hashed_password(email=data.email)
-    if not user:
-        raise HTTPException(status_code=401, detail="Пользователь с таким email не зарегестрирован")
-    if not AuthService().verify_password(data.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Пароль неверный")
-    access_token = AuthService().create_access_token({"user_id": user.id})
+    try:
+        access_token = await AuthService(db).login_user(data)
+    except EmailNotRegisteredException:
+        raise EmailNotRegisteredHTTPException
+    except IncorrectPasswordException:
+        raise IncorrectPasswordHTTPException
     response.set_cookie("access_token", access_token)
     return {"access_token": access_token}
 
@@ -41,5 +46,4 @@ async def logout_user(response: Response):
 
 @router.get("/me")
 async def get_me(db: DBDep, user_id: UserIdDep):
-    user = await db.users.get_one_or_none(id=user_id)
-    return user
+    return await AuthService(db).get_one_or_none_user(user_id)
