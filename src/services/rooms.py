@@ -30,10 +30,11 @@ class RoomService(BaseService):
         room_data = RoomAdd(hotel_id=hotel_id, **data.model_dump())
         result = await self.db.rooms.add(room_data)
 
-        room_facilities_data = [
-            RoomFacilityAdd(room_id=result.id, facility_id=f_id) for f_id in data.facilities_ids
-        ]
-        await self.db.rooms_facilities.add_bulk(room_facilities_data)
+        if data.facilities_ids:
+            room_facilities_data = [
+                RoomFacilityAdd(room_id=result.id, facility_id=f_id) for f_id in data.facilities_ids
+            ]
+            await self.db.rooms_facilities.add_bulk(room_facilities_data)
         await self.db.commit()
 
     async def put_room(self, hotel_id: int, room_id: int, data: RoomAddFullRequest):
