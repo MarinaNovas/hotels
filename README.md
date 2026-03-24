@@ -40,9 +40,11 @@ docker run --name booking_nginx \
   --rm -p 8080:80 nginx
 
 docker run --name booking_nginx \
-  -v "$(pwd)/nginx.conf:/etc/nginx/nginx.conf" \
+  --volume "$(pwd)/nginx.conf:/etc/nginx/nginx.conf" \
+  --volume /etc/letsencrypt:/etc/letsencrypt \
+  --volume /var/lib/letsencrypt:/var/lib/letsencrypt \
   --network=myNetwork \
-  -d -p 80:80 nginx
+  --rm -p 443:443 nginx
     
 
 docker build -t booking_image .
